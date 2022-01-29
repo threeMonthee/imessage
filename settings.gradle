@@ -1,2 +1,6 @@
 rootProject.name = 'imessage'
+include 'client'
+include 'server'
+include 'protocol'
+include 'dashboard'
 
