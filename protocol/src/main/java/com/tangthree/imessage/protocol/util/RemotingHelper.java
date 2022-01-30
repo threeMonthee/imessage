@@ -1,4 +1,4 @@
-package com.imessage.protocol.util;
+package com.tangthree.imessage.protocol.util;
 
 import io.netty.channel.Channel;
 import io.netty.util.Attribute;

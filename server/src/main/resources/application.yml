@@ -1,0 +1,5 @@
+logging:
+  level:
+    ROOT: debug
+    sun.rmi: info
+    org.springframework: info

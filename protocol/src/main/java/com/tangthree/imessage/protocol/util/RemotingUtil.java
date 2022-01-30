@@ -1,4 +1,4 @@
-package com.imessage.protocol.util;
+package com.tangthree.imessage.protocol.util;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -19,8 +19,9 @@ import java.util.Enumeration;
 public class RemotingUtil {
     public static final String OS_NAME = System.getProperty("os.name");
 
-    private static boolean isLinuxPlatform = false;
+    private static boolean isLinuxPlatform   = false;
     private static boolean isWindowsPlatform = false;
+    private static boolean isMacosPlatform   = false;
 
     static {
         if (OS_NAME != null && OS_NAME.toLowerCase().contains("linux")) {
@@ -29,6 +30,10 @@ public class RemotingUtil {
 
         if (OS_NAME != null && OS_NAME.toLowerCase().contains("windows")) {
             isWindowsPlatform = true;
+        }
+
+        if (OS_NAME != null && OS_NAME.toLowerCase().contains("mac")) {
+            isMacosPlatform = true;
         }
     }
 
@@ -200,6 +205,10 @@ public class RemotingUtil {
                     future.isSuccess());
             }
         });
+    }
+
+    public static void main(String[] args) {
+        System.out.println(OS_NAME);
     }
 
 }

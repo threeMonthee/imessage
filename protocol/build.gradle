@@ -4,5 +4,5 @@ plugins {
 
 dependencies {
     api 'io.netty:netty-all'
-    implementation 'org.springframework.boot:spring-boot-starter-logging'
+    api 'org.springframework.boot:spring-boot-starter-logging'
 }
