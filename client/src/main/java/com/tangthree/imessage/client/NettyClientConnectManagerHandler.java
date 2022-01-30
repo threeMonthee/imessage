@@ -26,7 +26,6 @@ public class NettyClientConnectManagerHandler extends ChannelDuplexHandler {
         final String local = localAddress == null ? "UNKNOWN" : RemotingHelper.parseSocketAddressAddr(localAddress);
         final String remote = remoteAddress == null ? "UNKNOWN" : RemotingHelper.parseSocketAddressAddr(remoteAddress);
         log.info("NETTY CLIENT PIPELINE: CONNECT  {} => {}", local, remote);
-
         super.connect(ctx, remoteAddress, localAddress, promise);
 
     }
@@ -35,7 +34,6 @@ public class NettyClientConnectManagerHandler extends ChannelDuplexHandler {
     public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
         final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
         log.info("NETTY CLIENT PIPELINE: DISCONNECT {}", remoteAddress);
-        RemotingUtil.closeChannel(ctx.channel());
         super.disconnect(ctx, promise);
     }
 
@@ -43,7 +41,6 @@ public class NettyClientConnectManagerHandler extends ChannelDuplexHandler {
     public void close(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
         final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
         log.info("NETTY CLIENT PIPELINE: CLOSE {}", remoteAddress);
-        RemotingUtil.closeChannel(ctx.channel());
         super.close(ctx, promise);
     }
 
@@ -53,7 +50,7 @@ public class NettyClientConnectManagerHandler extends ChannelDuplexHandler {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state().equals(IdleState.WRITER_IDLE)) {
                 log.debug("NETTY CLIENT PIPELINE: WRITER_IDLE");
-                ctx.writeAndFlush(Message.fromPayload(MessageType.HEARTBEAT, null));
+                ctx.writeAndFlush(Message.fromPayload(MessageType.HEARTBEAT));
             } else if (event.state().equals(IdleState.READER_IDLE)) {
                 log.info("NETTY CLIENT PIPELINE: READER_IDLE");
                 RemotingUtil.closeChannel(ctx.channel());

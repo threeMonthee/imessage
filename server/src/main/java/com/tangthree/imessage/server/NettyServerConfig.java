@@ -3,8 +3,6 @@ package com.tangthree.imessage.server;
 import io.netty.util.NettyRuntime;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * @author TangThree
@@ -13,8 +11,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Setter
 @Getter
-@ConfigurationProperties("netty.server")
-@Configuration
 public class NettyServerConfig {
 
     private static final int availableProcessors = NettyRuntime.availableProcessors();
@@ -30,6 +26,8 @@ public class NettyServerConfig {
     private int port                     = 1937;
 
     private int readerIdleTimeSeconds    = 60;
+
+    private int maxAuthTimeout           = 30;
 
     public static void main(String[] args) {
         System.out.println(availableProcessors);

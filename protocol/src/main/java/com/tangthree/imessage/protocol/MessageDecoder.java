@@ -1,7 +1,6 @@
 package com.tangthree.imessage.protocol;
 
-import com.tangthree.imessage.protocol.util.RemotingHelper;
-import com.tangthree.imessage.protocol.util.RemotingUtil;
+import com.tangthree.imessage.protocol.exception.DecodeException;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -22,6 +21,7 @@ import java.nio.ByteBuffer;
 
 @Slf4j
 public class MessageDecoder  extends LengthFieldBasedFrameDecoder {
+
     public MessageDecoder() {
         super(512*1024, 10, 4);
     }
@@ -41,9 +41,7 @@ public class MessageDecoder  extends LengthFieldBasedFrameDecoder {
             //magic code
             byte magicCode = byteBuffer.get();
             if (magicCode != Message.MAGIC_CODE) {
-                log.error("Unknown magic code:{}", magicCode);
-                RemotingUtil.closeChannel(ctx.channel());
-                return null;
+                throw new DecodeException(String.format("Unknown magic code: %s", magicCode));
             }
 
             //id
@@ -54,9 +52,7 @@ public class MessageDecoder  extends LengthFieldBasedFrameDecoder {
             byte type = byteBuffer.get();
             MessageType messageType = MessageType.from(type);
             if (messageType == null) {
-                log.error("Unknown message type:{}", messageType);
-                RemotingUtil.closeChannel(ctx.channel());
-                return null;
+                throw new DecodeException(String.format("Unknown message type:%s", messageType.toString()));
             }
             message.setType(messageType);
 
@@ -72,14 +68,10 @@ public class MessageDecoder  extends LengthFieldBasedFrameDecoder {
             log.debug("RECEIVE MESSAGE:{}", message);
 
             return message;
-        } catch (Exception e) {
-            log.error("decode exception, " + RemotingHelper.parseChannelRemoteAddr(ctx.channel()), e);
-            RemotingUtil.closeChannel(ctx.channel());
         } finally {
             if (null != frame) {
                 frame.release();
             }
         }
-        return null;
     }
 }

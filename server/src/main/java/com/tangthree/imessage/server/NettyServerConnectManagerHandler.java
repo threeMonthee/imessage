@@ -1,12 +1,17 @@
 package com.tangthree.imessage.server;
 
 import com.tangthree.imessage.protocol.util.RemotingHelper;
-import com.tangthree.imessage.protocol.util.RemotingUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author TangThree
@@ -15,6 +20,17 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class NettyServerConnectManagerHandler extends ChannelDuplexHandler {
+
+    private final ScheduledExecutorService executor;
+    private final int maxAuthTimeout;
+    private final ChannelTemplate channelTemplate;
+
+    public NettyServerConnectManagerHandler(ScheduledExecutorService executor, int maxAuthTimeout, ChannelTemplate channelTemplate) {
+        this.executor = executor;
+        this.maxAuthTimeout = maxAuthTimeout;
+        this.channelTemplate = channelTemplate;
+    }
+
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
@@ -33,6 +49,17 @@ public class NettyServerConnectManagerHandler extends ChannelDuplexHandler {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
         log.info("NETTY SERVER PIPELINE: channelActive, the channel[{}]", remoteAddress);
+        executor.schedule(new Runnable() {
+            @Override
+            public void run() {
+                log.debug("SCHEDULE AUTH: the channel:[{}]", remoteAddress);
+                Channel channel = ctx.channel();
+                if (channel.isActive() && !channel.hasAttr(AttributeKey.valueOf(ChannelAttributes.USER_ID))) {
+                    channelTemplate.closeAndRemove(channel);
+                    log.info("SCHEDULE AUTH: not auth, close the channel:[{}]", remoteAddress);
+                }
+            }
+        }, maxAuthTimeout, TimeUnit.SECONDS);
         super.channelActive(ctx);
     }
 
@@ -50,7 +77,7 @@ public class NettyServerConnectManagerHandler extends ChannelDuplexHandler {
             if (event.state().equals(IdleState.READER_IDLE)) {
                 final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
                 log.warn("NETTY SERVER PIPELINE: READER_IDLE exception [{}]", remoteAddress);
-                RemotingUtil.closeChannel(ctx.channel());
+                channelTemplate.closeAndRemove(ctx.channel());
             }
         }
 
@@ -60,8 +87,7 @@ public class NettyServerConnectManagerHandler extends ChannelDuplexHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
-        log.warn("NETTY SERVER PIPELINE: exceptionCaught {}", remoteAddress);
-        log.warn("NETTY SERVER PIPELINE: exceptionCaught exception.", cause);
-        RemotingUtil.closeChannel(ctx.channel());
+        log.error(String.format("NETTY SERVER PIPELINE: exceptionCaught, remoteAddress:%s", remoteAddress), cause);
+        channelTemplate.closeAndRemove(ctx.channel());
     }
 }

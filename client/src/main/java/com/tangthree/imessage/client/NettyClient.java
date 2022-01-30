@@ -1,8 +1,10 @@
 package com.tangthree.imessage.client;
 
 
+import com.tangthree.imessage.protocol.Disposable;
 import com.tangthree.imessage.protocol.MessageDecoder;
 import com.tangthree.imessage.protocol.MessageEncoder;
+import com.tangthree.imessage.protocol.util.RemotingUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -21,11 +23,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  **/
 
 @Slf4j
-public class NettyClient{
+public class NettyClient implements Disposable {
 
     private final Bootstrap bootstrap;
     private final EventLoopGroup selectorGroup;
     private final EventLoopGroup workerGroup;
+    private ChannelFuture channelFuture;
 
     public NettyClient(int connectTimeoutSeconds, int readerIdleTimeSeconds, int writerIdleTimeSeconds) {
         this(NettyRuntime.availableProcessors(), connectTimeoutSeconds, readerIdleTimeSeconds, writerIdleTimeSeconds);
@@ -67,13 +70,18 @@ public class NettyClient{
                 });
     }
 
-    public ChannelFuture syncConnect(String host, int port) throws InterruptedException {
+    public ChannelFuture connect(String host, int port) throws InterruptedException {
         log.info("NettyClient is connecting to remote server:{}:{}", host, port);
-        ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port)).sync();
+        channelFuture = bootstrap.connect(new InetSocketAddress(host, port));
         log.info("NettyClient is running");
-        return future;
+        return channelFuture;
     }
 
+    public void disconnect() {
+        RemotingUtil.closeChannel(channelFuture.channel());
+    }
+
+    @Override
     public void destroy() {
         if (selectorGroup != null) {
             selectorGroup.shutdownGracefully();

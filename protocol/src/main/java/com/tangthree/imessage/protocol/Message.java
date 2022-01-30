@@ -38,8 +38,18 @@ public class Message
                 '}';
     }
 
-    public static Message fromPayload(MessageType type, byte[] body)
-    {
+    public static Message fromPayload(MessageType type) {
+        return Message.builder()
+                .type(type)
+                .id(snowflake.nextId())
+                .build();
+    }
+
+    public static Message fromPayload(MessageType type, String body) {
+        return fromPayload(type, body.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static Message fromPayload(MessageType type, byte[] body) {
         return Message.builder()
                 .type(type)
                 .id(snowflake.nextId())

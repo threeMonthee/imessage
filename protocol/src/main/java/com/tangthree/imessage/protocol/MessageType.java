@@ -14,7 +14,7 @@ import lombok.Getter;
 public enum MessageType {
     HEARTBEAT ((byte) 0),
     AUTH      ((byte) 1),
-    BUSINESS  ((byte) 2)
+    SERVICE   ((byte) 2)
     ;
 
     private byte value;
