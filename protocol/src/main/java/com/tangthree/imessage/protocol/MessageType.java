@@ -12,19 +12,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum MessageType {
-    HEARTBEAT ((byte) 0),
-    AUTH      ((byte) 1),
-    SERVICE   ((byte) 2)
+    HEARTBEAT        ((byte) 0),
+    REPLY            ((byte) 1),
+    SERVICE          ((byte) 2),
     ;
 
     private byte value;
-
-    public static MessageType from(byte val) {
-        for (MessageType messageType : values()) {
-            if (messageType.value == val) {
-                return messageType;
-            }
-        }
-        return null;
-    }
 }

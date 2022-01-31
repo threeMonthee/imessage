@@ -1,7 +1,8 @@
 rootProject.name = 'imessage'
 include 'client'
-include 'server'
 include 'protocol'
 include 'dashboard'
-include 'spring-boot-starter-server'
-
+include 'server:server-core'
+findProject(':server:server-core')?.name = 'server-core'
+include 'server:spring-boot-starter-server'
+findProject(':server:spring-boot-starter-server')?.name = 'spring-boot-starter-server'

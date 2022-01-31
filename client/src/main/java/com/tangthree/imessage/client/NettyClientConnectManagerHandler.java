@@ -27,7 +27,6 @@ public class NettyClientConnectManagerHandler extends ChannelDuplexHandler {
         final String remote = remoteAddress == null ? "UNKNOWN" : RemotingHelper.parseSocketAddressAddr(remoteAddress);
         log.info("NETTY CLIENT PIPELINE: CONNECT  {} => {}", local, remote);
         super.connect(ctx, remoteAddress, localAddress, promise);
-
     }
 
     @Override
@@ -50,7 +49,7 @@ public class NettyClientConnectManagerHandler extends ChannelDuplexHandler {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state().equals(IdleState.WRITER_IDLE)) {
                 log.debug("NETTY CLIENT PIPELINE: WRITER_IDLE");
-                ctx.writeAndFlush(Message.fromPayload(MessageType.HEARTBEAT));
+                ctx.channel().writeAndFlush(Message.newHeartbeatMessage());
             } else if (event.state().equals(IdleState.READER_IDLE)) {
                 log.info("NETTY CLIENT PIPELINE: READER_IDLE");
                 RemotingUtil.closeChannel(ctx.channel());

@@ -22,7 +22,7 @@ public class MessageEncoder extends MessageToByteEncoder<Message> {
     protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
         out.writeByte(Message.MAGIC_CODE);
         out.writeLong(msg.getId());
-        out.writeByte(msg.getType().getValue());
+        out.writeInt(msg.getType());
         byte[] body = msg.getBody();
         if (body == null || body.length == 0) {
             out.writeInt(0);

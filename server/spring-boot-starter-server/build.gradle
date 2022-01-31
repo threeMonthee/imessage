@@ -1,0 +1,10 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api project(':server:server-core')
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    annotationProcessor "org.springframework.boot:spring-boot-autoconfigure-processor"
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+}

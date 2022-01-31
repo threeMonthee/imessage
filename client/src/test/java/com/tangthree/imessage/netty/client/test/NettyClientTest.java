@@ -41,6 +41,6 @@ public class NettyClientTest {
 
     private void auth(Channel channel)
     {
-        channel.writeAndFlush(Message.fromPayload(MessageType.AUTH, "123456"));
+        //channel.writeAndFlush(Message.fromPayload(MessageType.AUTH, "123456"));
     }
 }

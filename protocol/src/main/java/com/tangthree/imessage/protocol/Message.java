@@ -25,8 +25,8 @@ public class Message
 
     public static final byte MAGIC_CODE = 88;
 
-    private MessageType type;
     private long id;
+    private int type;
     private byte[] body;
 
     @Override
@@ -38,22 +38,40 @@ public class Message
                 '}';
     }
 
-    public static Message fromPayload(MessageType type) {
+    public Message newHeartbeatReplyMessage() {
+        return newReplyMessage(null);
+    }
+
+    public Message newReplyMessage(String payload) {
         return Message.builder()
-                .type(type)
-                .id(snowflake.nextId())
+                .id(id)
+                .type(MessageType.REPLY.getValue())
+                .body(payload == null ? null : payload.getBytes(StandardCharsets.UTF_8))
                 .build();
     }
 
-    public static Message fromPayload(MessageType type, String body) {
-        return fromPayload(type, body.getBytes(StandardCharsets.UTF_8));
+    public boolean isHeartMessage() {
+        return this.type == MessageType.HEARTBEAT.getValue();
     }
 
-    public static Message fromPayload(MessageType type, byte[] body) {
+    public static Message newHeartbeatMessage() {
         return Message.builder()
-                .type(type)
                 .id(snowflake.nextId())
-                .body(body)
+                .type(MessageType.HEARTBEAT.getValue())
                 .build();
     }
+
+    public static Message fromPayload(int type, String payload) {
+        return fromPayload(type, payload == null ? null : payload.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static Message fromPayload(int type, byte[] payload) {
+        return Message.builder()
+                .id(snowflake.nextId())
+                .type(type)
+                .body(payload)
+                .build();
+    }
+
+
 }
