@@ -1,7 +1,6 @@
 package com.tangthree.imessage.client;
 
 import com.tangthree.imessage.protocol.Message;
-import com.tangthree.imessage.protocol.MessageType;
 import com.tangthree.imessage.protocol.util.RemotingHelper;
 import com.tangthree.imessage.protocol.util.RemotingUtil;
 import io.netty.channel.ChannelDuplexHandler;

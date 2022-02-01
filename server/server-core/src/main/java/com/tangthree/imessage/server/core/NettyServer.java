@@ -140,7 +140,7 @@ public class NettyServer implements Disposable
         try {
             ChannelFuture future = bootstrap.bind(nettyServerConfig.getPort()).sync();
             if (future.isSuccess()) {
-                log.info("NettyServer is running on port:{}", nettyServerConfig.getPort());
+                log.info("NettyServer is running on port: {}", nettyServerConfig.getPort());
             } else {
                 throw new NettyServerStartException("failed to start NettyServer", future.cause());
             }

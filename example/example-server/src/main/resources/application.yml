@@ -1,0 +1,13 @@
+logging:
+  level:
+    com.tangthree: debug
+
+imessage:
+  server:
+    use-epoll: false
+    selector-threads:
+    worker-threads:
+    service-threads:
+    heartbeat-timeout:
+    max-auth-timeout:
+    port: 10937

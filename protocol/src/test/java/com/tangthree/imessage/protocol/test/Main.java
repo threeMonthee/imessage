@@ -10,6 +10,7 @@ import java.util.Random;
  **/
 public class Main {
     public static void main(String[] args) throws UnknownHostException {
-        System.out.println(new Random().nextInt(31));
+        String a = "123";
+        System.out.println();
     }
 }

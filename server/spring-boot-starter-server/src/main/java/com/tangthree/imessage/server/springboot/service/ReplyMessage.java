@@ -1,5 +1,6 @@
 package com.tangthree.imessage.server.springboot.service;
 
+import cn.hutool.json.JSONUtil;
 import com.tangthree.imessage.server.springboot.util.JsonUtils;
 import lombok.*;
 
@@ -13,32 +14,31 @@ import lombok.*;
 @NoArgsConstructor
 @Setter
 @Getter
-public class NettyResponse {
-    private NettyStatus status;
+public class ReplyMessage {
+    private int status;
     private String msg;
+    private Object data;
 
-    public NettyResponse(NettyStatus status) {
-        this.status = status;
+    public ReplyMessage(NettyStatus status) {
+        this.status = status.getVal();
     }
 
-    public NettyResponse(NettyStatus status, String msg) {
-        this.status = status;
+    public ReplyMessage(NettyStatus status, String msg) {
+        this.status = status.getVal();
         this.msg = msg;
     }
 
     public void setStatus(NettyStatus status, String msg) {
-        this.status = status;
+        this.status = status.getVal();
         this.msg = msg;
     }
-
-    private Object data;
 
     @Override
     public String toString() {
         return "NettyResponse{" +
                 "status=" + status +
                 ", msg='" + msg + '\'' +
-                ", data=" + JsonUtils.toJson(data) +
+                ", data=" + JSONUtil.toJsonStr(data) +
                 '}';
     }
 }

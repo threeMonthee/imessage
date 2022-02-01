@@ -9,7 +9,7 @@ import io.netty.channel.ChannelPromise;
  * @author TangThree
  * Created on 2022/1/31 1:47 AM
  **/
-public interface ChannelTemplate {
+public interface IMessageTemplate {
 
     Channel getChannel(String clientId);
 

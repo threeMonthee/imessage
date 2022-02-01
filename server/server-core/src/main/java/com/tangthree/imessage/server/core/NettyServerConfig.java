@@ -23,7 +23,7 @@ public class NettyServerConfig {
 
     private int serviceThreads           = availableProcessors * 8;
 
-    private int port                     = 1937;
+    private int port                     = 10937;
 
     private int readerIdleTimeSeconds    = 60;
 

@@ -6,3 +6,7 @@ include 'server:server-core'
 findProject(':server:server-core')?.name = 'server-core'
 include 'server:spring-boot-starter-server'
 findProject(':server:spring-boot-starter-server')?.name = 'spring-boot-starter-server'
+include 'example'
+include 'example:example-server'
+findProject(':example:example-server')?.name = 'example-server'
+

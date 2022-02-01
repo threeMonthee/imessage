@@ -12,5 +12,5 @@ import lombok.Setter;
 @Getter
 public class ServiceMessageBody {
     private String service;
-    private String messageBody;
+    private String body;
 }

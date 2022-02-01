@@ -11,8 +11,6 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class NettyRequest<T> {
+public class MessageContext {
     private ChannelHandlerContext ctx;
-    private Long messageId;
-    private T body;
 }

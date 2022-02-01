@@ -2,12 +2,14 @@ package com.tangthree.imessage.server.springboot.autoconfigure;
 
 import com.tangthree.imessage.server.core.NettyServer;
 import com.tangthree.imessage.server.core.NettyServerConfig;
-import com.tangthree.imessage.server.springboot.netty.ChannelTemplate;
-import com.tangthree.imessage.server.springboot.netty.DefaultChannelTemplate;
-import com.tangthree.imessage.server.springboot.service.NettyService;
-import com.tangthree.imessage.server.springboot.service.NettyServiceHandler;
-import com.tangthree.imessage.server.springboot.service.ServiceDispatcherChannelHandler;
+import com.tangthree.imessage.server.springboot.netty.IMessageTemplate;
+import com.tangthree.imessage.server.springboot.netty.DefaultIMessageTemplate;
+import com.tangthree.imessage.server.springboot.netty.IMessageServiceRegisterException;
+import com.tangthree.imessage.server.springboot.service.IMessageService;
+import com.tangthree.imessage.server.springboot.service.IMessageServiceHandler;
+import com.tangthree.imessage.server.springboot.netty.ServiceDispatcherChannelHandler;
 import io.netty.channel.ChannelHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -25,9 +27,10 @@ import java.util.Map;
  * Created on 2022/1/31 3:57 AM
  **/
 
+@Slf4j
 @Configuration
 @EnableConfigurationProperties(IMessageProperties.class)
-@ConditionalOnProperty(prefix = "imessage")
+@ConditionalOnProperty(prefix = "imessage", name = "server", matchIfMissing = true)
 public class IMessageAutoConfiguration implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
@@ -39,32 +42,32 @@ public class IMessageAutoConfiguration implements ApplicationContextAware {
     @Bean
     @ConditionalOnMissingBean(ServiceDispatcherChannelHandler.class)
     public ServiceDispatcherChannelHandler serviceDispatcherChannelHandler() {
-        ServiceDispatcherChannelHandler serviceDispatcherChannelHandler = new ServiceDispatcherChannelHandler();
-        Map<String, NettyServiceHandler> nettyServiceHandlerBeans = applicationContext.getBeansOfType(NettyServiceHandler.class);
+        ServiceDispatcherChannelHandler IMessageDispatcherServiceHandler = new ServiceDispatcherChannelHandler();
+        Map<String, IMessageServiceHandler> nettyServiceHandlerBeans = applicationContext.getBeansOfType(IMessageServiceHandler.class);
         if (nettyServiceHandlerBeans.size() > 0) {
-            nettyServiceHandlerBeans.values().forEach(nettyServiceHandler -> {
-                NettyService nettyService = nettyServiceHandler.getClass().getAnnotation(NettyService.class);
-                if (nettyService == null) {
-                    throw new ServiceRegisterException(String.format("[%s] must contains annotation:NettyService", nettyServiceHandler.getClass()));
+            nettyServiceHandlerBeans.values().forEach(IMessageServiceHandler -> {
+                IMessageService IMessageService = IMessageServiceHandler.getClass().getAnnotation(IMessageService.class);
+                if (IMessageService == null) {
+                    throw new IMessageServiceRegisterException(String.format("[%s] must contains annotation:NettyService", IMessageServiceHandler.getClass()));
                 }
-                serviceDispatcherChannelHandler.registerService(nettyService.value(), nettyServiceHandler);
+                log.debug("Registering NettyService:[{}]", IMessageServiceHandler.getClass());
+                IMessageDispatcherServiceHandler.registerService(IMessageService.value(), IMessageServiceHandler);
             });
         }
-        return serviceDispatcherChannelHandler;
+        return IMessageDispatcherServiceHandler;
     }
 
     @Bean
-    @ConditionalOnMissingBean(ChannelTemplate.class)
-    public ChannelTemplate channelTemplate() {
-        return new DefaultChannelTemplate();
+    @ConditionalOnMissingBean(IMessageTemplate.class)
+    public IMessageTemplate channelTemplate() {
+        return new DefaultIMessageTemplate();
     }
 
     @Bean
     @ConditionalOnMissingBean(NettyServer.class)
     @ConditionalOnBean(ServiceDispatcherChannelHandler.class)
-    @ConditionalOnProperty(prefix = "imessage.server")
     public NettyServer nettyServer(IMessageProperties iMessageProperties,
-                                   ServiceDispatcherChannelHandler serviceDispatcherChannelHandler) {
+                                   ServiceDispatcherChannelHandler dispatcherServiceHandler) {
         NettyServerConfig config = new NettyServerConfig();
         if (iMessageProperties.getUseEpoll() != null) {
             config.setUseEpoll(iMessageProperties.getUseEpoll());
@@ -88,7 +91,7 @@ public class IMessageAutoConfiguration implements ApplicationContextAware {
             config.setPort(iMessageProperties.getPort());
         }
         NettyServer nettyServer = new NettyServer(config);
-        nettyServer.registerServiceChannelHandler(serviceDispatcherChannelHandler);
+        nettyServer.registerServiceChannelHandler(dispatcherServiceHandler);
         Map<String, ChannelHandler> channelHandlers = applicationContext.getBeansOfType(ChannelHandler.class);
         if (channelHandlers.size() > 0) {
             channelHandlers.values().forEach(nettyServer::registerServiceChannelHandler);

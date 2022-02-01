@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created on 2022/1/31 1:48 AM
  **/
 
-public class DefaultChannelTemplate implements ChannelTemplate{
+public class DefaultIMessageTemplate implements IMessageTemplate {
 
     private final Map<String, Channel> channelMap = new ConcurrentHashMap<>();
 

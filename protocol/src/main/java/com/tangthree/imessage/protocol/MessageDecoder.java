@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
  * max data size : 512kb
  * part 1. 1byte (magic code)
  * part 2. 8byte (message id)
- * part 3. 4byte (message type)
+ * part 3. 1byte (message type)
  * part 4. 4byte (body length)
  * part 5. body
  * @author TangThree
@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 public class MessageDecoder  extends LengthFieldBasedFrameDecoder {
 
     public MessageDecoder() {
-        super(512*1024, 13, 4);
+        super(512*1024, 10, 4);
     }
 
     @Override

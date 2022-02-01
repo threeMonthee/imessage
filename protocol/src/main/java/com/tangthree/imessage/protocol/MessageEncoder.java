@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * part 1. 1byte (magic code)
- * part 2. 4byte (message id)
+ * part 2. 8byte (message id)
  * part 3. 1byte (message type)
  * part 4. 4byte (body length)
  * part 5. body
@@ -22,7 +22,7 @@ public class MessageEncoder extends MessageToByteEncoder<Message> {
     protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
         out.writeByte(Message.MAGIC_CODE);
         out.writeLong(msg.getId());
-        out.writeInt(msg.getType());
+        out.writeByte(msg.getType());
         byte[] body = msg.getBody();
         if (body == null || body.length == 0) {
             out.writeInt(0);
