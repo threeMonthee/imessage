@@ -33,7 +33,8 @@ public abstract class BaseIMessageServiceHandler<T> implements IMessageServiceHa
 
     @Override
     public Object handleMessage(MessageContext context, long messageId, String body) {
-        return processMessage(context, messageId, (T)JsonUtils.readObject(body, messageType));
+        Object message = (messageType == CharSequence.class || messageType == String.class) ? body : JsonUtils.readObject(body, messageType);
+        return processMessage(context, messageId, (T)message);
     }
 
     protected abstract Object processMessage(MessageContext context, long messageId, T message);

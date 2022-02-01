@@ -65,6 +65,7 @@ public class ServiceDispatcherChannelHandler extends SimpleChannelInboundHandler
             messageContext.setCtx(ctx);
             Object responseBody = serviceHandler.handleMessage(messageContext, message.getId(),
                     new String(message.getBody(), StandardCharsets.UTF_8));
+            replyMessage.setStatus(NettyStatus.SUCCESS.getVal());
             replyMessage.setData(responseBody);
             writeResponse(ctx, message, replyMessage);
         } catch (Exception e) {

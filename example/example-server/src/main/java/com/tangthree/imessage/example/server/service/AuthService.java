@@ -15,6 +15,6 @@ import org.springframework.stereotype.Service;
 public class AuthService extends BaseIMessageServiceHandler<String> {
     @Override
     public Object processMessage(MessageContext context, long messageId, String message) {
-        return null;
+        return "ok";
     }
 }

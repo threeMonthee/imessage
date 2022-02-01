@@ -1,9 +1,10 @@
 apply plugin: 'org.springframework.boot'
 
 dependencies {
+    implementation fileTree(dir:'lib',includes:['*jar'])
+
     compileOnly project(':server:spring-boot-starter-server')
     implementation project(':server:server-core')
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation fileTree(dir:'lib',includes:['*jar'])
     implementation 'org.springframework.boot:spring-boot-starter-web'
 }

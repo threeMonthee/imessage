@@ -20,6 +20,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -42,7 +43,7 @@ public class IMessageAutoConfiguration implements ApplicationContextAware {
     @Bean
     @ConditionalOnMissingBean(ServiceDispatcherChannelHandler.class)
     public ServiceDispatcherChannelHandler serviceDispatcherChannelHandler() {
-        ServiceDispatcherChannelHandler IMessageDispatcherServiceHandler = new ServiceDispatcherChannelHandler();
+        ServiceDispatcherChannelHandler dispatcherChannelHandler = new ServiceDispatcherChannelHandler();
         Map<String, IMessageServiceHandler> nettyServiceHandlerBeans = applicationContext.getBeansOfType(IMessageServiceHandler.class);
         if (nettyServiceHandlerBeans.size() > 0) {
             nettyServiceHandlerBeans.values().forEach(IMessageServiceHandler -> {
@@ -50,11 +51,11 @@ public class IMessageAutoConfiguration implements ApplicationContextAware {
                 if (IMessageService == null) {
                     throw new IMessageServiceRegisterException(String.format("[%s] must contains annotation:NettyService", IMessageServiceHandler.getClass()));
                 }
-                log.debug("Registering NettyService:[{}]", IMessageServiceHandler.getClass());
-                IMessageDispatcherServiceHandler.registerService(IMessageService.value(), IMessageServiceHandler);
+                log.info("Registering NettyService:[{}]", IMessageServiceHandler.getClass());
+                dispatcherChannelHandler.registerService(IMessageService.value(), IMessageServiceHandler);
             });
         }
-        return IMessageDispatcherServiceHandler;
+        return dispatcherChannelHandler;
     }
 
     @Bean
@@ -93,8 +94,19 @@ public class IMessageAutoConfiguration implements ApplicationContextAware {
         NettyServer nettyServer = new NettyServer(config);
         nettyServer.registerServiceChannelHandler(dispatcherServiceHandler);
         Map<String, ChannelHandler> channelHandlers = applicationContext.getBeansOfType(ChannelHandler.class);
-        if (channelHandlers.size() > 0) {
-            channelHandlers.values().forEach(nettyServer::registerServiceChannelHandler);
+        if (channelHandlers.size() > 1) {
+            Iterator<ChannelHandler> channelHandlerIterator = channelHandlers.values().iterator();
+            int i = 0;
+            ChannelHandler[] channelHandlerArray = new ChannelHandler[channelHandlers.size() - 1];
+            while (channelHandlerIterator.hasNext()) {
+                ChannelHandler channelHandler = channelHandlerIterator.next();
+                if (channelHandler != dispatcherServiceHandler) {
+                    log.info("Registering ChannelHandler: [{}]", channelHandler);
+                    channelHandlerArray[i] = channelHandler;
+                    i++;
+                }
+            }
+            nettyServer.registerServiceChannelHandler(channelHandlerArray);
         }
         nettyServer.start();
         return nettyServer;
